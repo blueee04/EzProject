@@ -6,6 +6,7 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017/")
 db = client["your_database_name"]
 tasks_collection = db["tasks"]
+bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 
 class TaskBot(commands.Bot):
     def __init__(self):
@@ -26,5 +27,5 @@ class TaskBot(commands.Bot):
             await ctx.respond("Something went wrong marking the task as done. Please try again later.", ephemeral=True)
 bot = TaskBot()
 
-bot.run("your_bot_token")
+bot.run(bot_token)
             

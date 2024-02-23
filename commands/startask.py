@@ -6,13 +6,15 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017/")
 db = client["your_database_name"]
 tasks_collection = db["tasks"]
+bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
+
 
 class TaskBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix="!")
 
     @commands.slash_command(name="startask", description="Edit task status")
-    async def update_task(self, ctx, task_id: str, text: str, assign: discord.Member = None):
+    async def star_task(self, ctx, task_id: str, text: str, server_id: str, _status: str, assign: discord.Member = None):
         try:
             server_id = ctx.guild.id
             task = tasks_collection.find_one({"_id": task_id, "server_id": server_id})
@@ -26,6 +28,6 @@ class TaskBot(commands.Bot):
             await ctx.respond("Something went wrong starting the task. Please try again later.", ephemeral=True)
 bot = TaskBot()
 
-# Replace with your Discord bot token
-bot.run("your_bot_token")
+bot.run(bot_token)
+
             
