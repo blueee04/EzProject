@@ -11,7 +11,7 @@ class TaskBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix="!")
 
-    @commands.slash_command(name="assign", description="Assign a task to a user")
+    @commands.slash_command(name="assigntask", description="Assign a task to a user")
     async def assign_task(self, ctx, task_id: str, assign: discord.Member):
         try:
             server_id = ctx.guild.id
