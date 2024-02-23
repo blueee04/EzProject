@@ -17,7 +17,7 @@ class TaskBot(commands.Bot):
     async def star_task(self, ctx, task_id: str, text: str, server_id: str, _status: str, assign: discord.Member = None):
         try:
             server_id = ctx.guild.id
-            task = tasks_collection.find_one({"_id": task_id, "server_id": server_id})
+            task = tasks_collection.find_one({"_id": task_id, "$set":{"server_id": server_id}})
             if not task:
                 await ctx.respond("Task not found", ephemeral=True)
                 return
