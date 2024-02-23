@@ -6,13 +6,15 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017/")
 db = client["your_database_name"]
 tasks_collection = db["tasks"]
+bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
+
 
 class TaskBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix="!")
 
     @commands.slash_command(name="addtask", description="Add a new task")
-    async def add_task(self, ctx, text: str, assign: discord.Member = None):
+    async def star_task(self, ctx, task_id: str, text: str, server_id: str, _status: str, assign: discord.Member = None):
         try:
             server_id = ctx.guild.id
             task_data = {
@@ -30,5 +32,4 @@ class TaskBot(commands.Bot):
 
 bot = TaskBot()
 
-# Replace with your Discord bot token
-bot.run("your_bot_token")
+bot.run(bot_token)
