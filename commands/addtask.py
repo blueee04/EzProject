@@ -14,7 +14,15 @@ class TaskBot(commands.Bot):
         super().__init__(command_prefix="!")
 
     @commands.slash_command(name="addtask", description="Add a new task")
-    async def star_task(self, ctx, task_id: str, text: str, server_id: str, _status: str, assign: discord.Member = None):
+    async def star_task(
+        self,
+        ctx,
+        task_id: str,
+        text: str,
+        server_id: str,
+        _status: str,
+        assign: discord.Member = None,
+    ):
         try:
             server_id = ctx.guild.id
             task_data = {
@@ -25,11 +33,13 @@ class TaskBot(commands.Bot):
             inserted_task = tasks_collection.insert_one(task_data)
 
             await ctx.respond("Task created!", ephemeral=True)
-            await ctx.follow_up(f"Task '{text}' added with ID {inserted_task.inserted_id}", ephemeral=True)
+            await ctx.follow_up(
+                f"Task '{text}' added with ID {inserted_task.inserted_id}",
+                ephemeral=True,
+            )
         except Exception as e:
             print(f"Error adding task: {e}")
-            await ctx.respond("Something went wrong adding the task. Please try again later.", ephemeral=True)
-
-bot = TaskBot()
-
-bot.run(bot_token)
+            await ctx.respond(
+                "Something went wrong adding the task. Please try again later.",
+                ephemeral=True,
+            )
