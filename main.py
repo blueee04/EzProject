@@ -11,12 +11,6 @@ import numpy as np
 import re
 
 
-def split_string_with_space(string):
-    words = re.split(r"\s+", string)
-    words = [word for word in words if word]
-    return words
-
-
 # discord.py module
 from discord.ext import commands
 
@@ -24,6 +18,12 @@ bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-
 
 # Bot instance
 bot = commands.Bot(intents=discord.Intents.all())
+
+
+def split_string_with_space(string):
+    words = re.split(r"\s+", string)
+    words = [word for word in words if word]
+    return words
 
 
 # Bot event
@@ -54,9 +54,11 @@ async def on_message(message):
         if proj_id not in Tasks:
             Tasks[proj_id] = []
             status[proj_id] = []
-
-        Tasks[proj_id].append(stuff[1])
-        status[proj_id].append({stuff[1]: "incomplete \u274C"})
+        task_string = ""
+        for i in range(1, len(stuff)):
+            task_string += stuff[i] + " "
+        Tasks[proj_id].append(task_string)
+        status[proj_id].append({task_string: "incomplete \u274C"})
         await message.channel.send("Task added!")
 
     if message.content.startswith("!listtask"):
@@ -66,7 +68,7 @@ async def on_message(message):
             await message.channel.send("No tasks found")
         else:
             a = [
-                f"{i+1}. {task} - {status}"
+                f"{i+1}. {task} - {status} "
                 for i, (task, status) in enumerate(zip(Tasks[proj_id], status[proj_id]))
             ]
             await message.channel.send(
