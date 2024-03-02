@@ -75,6 +75,24 @@ async def on_message(message):
                 f"List of Tasks for Project ID : {proj_id} is : \n" + "\n".join(a)
             )
 
+    if message.content.startswith("!edittask"):
+        msg = message.content.split("!edittask ", 1)[1]
+
+        try:
+            stuff = split_string_with_space(msg)
+            proj_id = int(stuff[0])
+            task_id = int(stuff[1])
+            task_string = ""
+            for i in range(2, len(stuff)):
+                task_string += stuff[i] + " "
+            Tasks[proj_id][task_id - 1] = task_string
+            status[proj_id][task_id - 1] = {task_string: "incomplete \u274C"}
+            await message.channel.send("Task edited!")
+        except:
+            await message.channel.send(
+                f"{message.author.mention} Please enter in the format !edittask <proj_id> <task_id> <new_task>"
+            )
+
     await bot.process_commands(message)
 
 
