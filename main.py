@@ -17,7 +17,7 @@ from discord.ext import commands
 bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 
 # Bot instance
-bot = commands.Bot(intents=discord.Intents.all())
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 
 def split_string_with_space(string):
@@ -48,31 +48,43 @@ async def on_message(message):
         await message.channel.send("Hello!")
 
     if message.content.startswith("!addtask"):
-        msg = message.content.split("!addtask ", 1)[1]
-        stuff = split_string_with_space(msg)
-        proj_id = int(stuff[0])
-        if proj_id not in Tasks:
-            Tasks[proj_id] = []
-            status[proj_id] = []
-        task_string = ""
-        for i in range(1, len(stuff)):
-            task_string += stuff[i] + " "
-        Tasks[proj_id].append(task_string)
-        status[proj_id].append({task_string: "incomplete \u274C"})
-        await message.channel.send("Task added!")
+        try:
+            msg = message.content.split("!addtask ", 1)[1]
+            stuff = split_string_with_space(msg)
+            proj_id = int(stuff[0])
+            if proj_id not in Tasks:
+                Tasks[proj_id] = []
+                status[proj_id] = []
+            task_string = ""
+            for i in range(1, len(stuff)):
+                task_string += stuff[i] + " "
+            Tasks[proj_id].append(task_string)
+            status[proj_id].append({task_string: "incomplete \u274C"})
+            await message.channel.send("Task added!")
+        except:
+            await message.channel.send(
+                f"{message.author.mention} Please enter in the format **!addtask <proj_id> <task>**"
+            )
 
     if message.content.startswith("!listtask"):
-        msg = message.content.split("!listtask ", 1)[1]
-        proj_id = int(msg)
-        if proj_id not in Tasks:
-            await message.channel.send("No tasks found")
-        else:
-            a = [
-                f"{i+1}. {task} - {status} "
-                for i, (task, status) in enumerate(zip(Tasks[proj_id], status[proj_id]))
-            ]
+        try:
+            msg = message.content.split("!listtask ", 1)[1]
+            proj_id = int(msg)
+            if proj_id not in Tasks:
+                await message.channel.send("No tasks found")
+            else:
+                a = [
+                    f"{i+1}. {task} - {status} "
+                    for i, (task, status) in enumerate(
+                        zip(Tasks[proj_id], status[proj_id])
+                    )
+                ]
+                await message.channel.send(
+                    f"List of Tasks for Project ID : {proj_id} is : \n" + "\n".join(a)
+                )
+        except:
             await message.channel.send(
-                f"List of Tasks for Project ID : {proj_id} is : \n" + "\n".join(a)
+                f"{message.author.mention} Please enter in the format !listtask <proj_id>"
             )
 
     if message.content.startswith("!edittask"):
