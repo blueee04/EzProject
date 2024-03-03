@@ -1,11 +1,21 @@
-bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 import discord
 from discord.ext import commands
+
+
+# MongoDB connection
+from pymongo import MongoClient
+
+client = MongoClient("mongodb+srv://hegdeadithyak:adi4720Q@prjct.0cc2j4d.mongodb.net/")
+if client:
+    print("Connected to the MongoDB Atlas!")
+db = client["discord"]
+collection = db["tasks"]
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="/", intents=intents)
+bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 
 task_descriptions = {}
 statuses = {}
@@ -29,6 +39,13 @@ async def add_task(ctx, project_id: int, task_description: str):
     statuses.setdefault(project_id, []).append(
         {"task": task_description, "status": "incomplete \u274C"}
     )
+    client["discord"]["tasks"].insert_one(
+        {
+            "project_id": project_id,
+            "task_id": len(task_descriptions[project_id]),
+            "description": task_description,
+        }
+    )
     await ctx.send(f"Task added!")
 
 
@@ -41,6 +58,7 @@ async def list_tasks(ctx, project_id: int):
             f"{i+1}. {task['task']} - {task['status']} "
             for i, task in enumerate(statuses[project_id])
         ]
+        client["discord"]["tasks"].find({"project_id": project_id})
         await ctx.send(
             f"List of Tasks for Project ID : {project_id} is : \n"
             + "\n".join(task_list)
@@ -54,6 +72,10 @@ async def edit_task(ctx, project_id: int, task_id: int, new_description: str):
     ):
         task_descriptions[project_id][task_id - 1] = new_description
         statuses[project_id][task_id - 1]["task"] = new_description
+        client["discord"]["tasks"].update_one(  # Update the task in the database
+            {"project_id": project_id, "task_id": task_id},
+            {"$set": {"description": new_description}},
+        )
         await ctx.send("Task edited!")
     else:
         await ctx.send("Task not found")
