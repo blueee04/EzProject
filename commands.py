@@ -19,8 +19,6 @@ bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-
 
 task_descriptions = {}
 statuses = {}
-
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -28,12 +26,12 @@ async def on_ready():
     print("------")
 
 
-@bot.slash_command(name="hello")
+@bot.command(name="hello")
 async def hello(ctx):
     await ctx.send("Hello!")
 
 
-@bot.slash_command(name="addtask")
+@bot.command(name="addtask")
 async def add_task(ctx, project_id: int, task_description: str):
     task_descriptions.setdefault(project_id, []).append(task_description)
     statuses.setdefault(project_id, []).append(
@@ -49,7 +47,7 @@ async def add_task(ctx, project_id: int, task_description: str):
     await ctx.send(f"Task added!")
 
 
-@bot.slash_command(name="listtask")
+@bot.command(name="listtask")
 async def list_tasks(ctx, project_id: int):
     if project_id not in task_descriptions:
         await ctx.send("No tasks found")
@@ -65,7 +63,7 @@ async def list_tasks(ctx, project_id: int):
         )
 
 
-@bot.slash_command(name="edittask")
+@bot.command(name="edittask")
 async def edit_task(ctx, project_id: int, task_id: int, new_description: str):
     if project_id in task_descriptions and 0 < task_id <= len(
         task_descriptions[project_id]
