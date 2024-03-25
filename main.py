@@ -1,14 +1,16 @@
-# Bots Commands
-from customcommands.startask import StartTaskBot
-from customcommands.listtask import listTaskBot
-from customcommands.edittask import editTaskBot
-from customcommands.taskdone import complete
-from customcommands.assign import AssignBot
-from customcommands.addtask import Add
-
 import discord
 import numpy as np
 import re
+
+#pymongo module
+from pymongo import MongoClient
+
+
+client = MongoClient("mongodb+srv://hegdeadithyak:adi4720Q@prjct.0cc2j4d.mongodb.net/")
+if client:
+    print("Connected to the MongoDB Atlas!")
+db = client["discord"]
+collection = db["tasks"]
 
 
 # discord.py module
@@ -50,6 +52,7 @@ async def on_message(message):
     if message.content.startswith("!addtask"):
         try:
             msg = message.content.split("!addtask ", 1)[1]
+            print(msg)
             stuff = split_string_with_space(msg)
             proj_id = int(stuff[0])
             if proj_id not in Tasks:
@@ -60,6 +63,13 @@ async def on_message(message):
                 task_string += stuff[i] + " "
             Tasks[proj_id].append(task_string)
             status[proj_id].append({task_string: "incomplete \u274C"})
+            client["discord"]["tasks"].insert_one(
+                {
+                    "project_id": proj_id,
+                    "task_id": len(Tasks[proj_id]),
+                    "description": task_string,
+                }
+            )
             await message.channel.send("Task added!")
         except:
             await message.channel.send(
@@ -73,14 +83,16 @@ async def on_message(message):
             if proj_id not in Tasks:
                 await message.channel.send("No tasks found")
             else:
-                a = [
-                    f"{i+1}. {task} - {status} "
+                Tasks  = client["discord"]["tasks"].find({"project_id": proj_id})
+                task = [
+                    f"{i+1}. {task} - {status}"
                     for i, (task, status) in enumerate(
                         zip(Tasks[proj_id], status[proj_id])
                     )
                 ]
                 await message.channel.send(
-                    f"List of Tasks for Project ID : {proj_id} is : \n" + "\n".join(a)
+                    f"List of Tasks for Project ID : {proj_id} is : \n"
+                    + "\n".join(task)
                 )
         except:
             await message.channel.send(
@@ -99,6 +111,10 @@ async def on_message(message):
                 task_string += stuff[i] + " "
             Tasks[proj_id][task_id - 1] = task_string
             status[proj_id][task_id - 1] = {task_string: "incomplete \u274C"}
+            client["discord"]["tasks"].update_one(
+                {"project_id": proj_id, "task_id": task_id},
+                {"$set": {"description": task_string}},
+            )
             await message.channel.send("Task edited!")
         except:
             await message.channel.send(
