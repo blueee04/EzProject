@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+from Datamodule.db import add,  list_task, edit
 
 # MongoDB connection
 from pymongo import MongoClient
@@ -17,8 +17,11 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
 bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 
+# Task descriptions and statuses
 task_descriptions = {}
 statuses = {}
+
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -30,50 +33,52 @@ async def on_ready():
 async def hello(ctx):
     await ctx.send("Hello!")
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"Please enter the correct format. Format: /listtask **<project_id>**")
 
 @bot.command(name="addtask")
-async def add_task(ctx, project_id: int, task_description: str):
+async def add_task(ctx, project_id: int, task_description: str,status="incomplete"):
     task_descriptions.setdefault(project_id, []).append(task_description)
     statuses.setdefault(project_id, []).append(
         {"task": task_description, "status": "incomplete \u274C"}
     )
-    client["discord"]["tasks"].insert_one(
-        {
-            "project_id": project_id,
-            "task_id": len(task_descriptions[project_id]),
-            "description": task_description,
-        }
-    )
+    temp_status = "ic"
+    if(status=="complete"):
+        statuses[project_id][-1]["status"] = "complete \u2705"
+        temp_status = "c"
+    add(project_id, task_description, task_descriptions,temp_status) # Add the task to the database
     await ctx.send(f"Task added!")
 
 
 @bot.command(name="listtask")
 async def list_tasks(ctx, project_id: int):
-    if project_id not in task_descriptions:
-        await ctx.send("No tasks found")
-    else:
-        task_list = [
-            f"{i+1}. {task['task']} - {task['status']} "
-            for i, task in enumerate(statuses[project_id])
-        ]
-        client["discord"]["tasks"].find({"project_id": project_id})
-        await ctx.send(
-            f"List of Tasks for Project ID : {project_id} is : \n"
-            + "\n".join(task_list)
-        )
+    try:
+        project_id = int(project_id)
+        #if project id not found in the database
+        if project_id not in collection.distinct("project_id"):
+            await ctx.send("No tasks found")
+            return
+        
+        task_list = list_task(project_id)
+        await ctx.send(f"Tasks for project {project_id}:\n" + "\n".join(task_list))
+    except :
+        await ctx.send("Please enter a valid project ID,format: /listtask **<project_id>**")
 
 
 @bot.command(name="edittask")
-async def edit_task(ctx, project_id: int, task_id: int, new_description: str):
+async def edit_task(ctx, project_id: int, task_id: int, status: str):
     if project_id in task_descriptions and 0 < task_id <= len(
         task_descriptions[project_id]
     ):
-        task_descriptions[project_id][task_id - 1] = new_description
-        statuses[project_id][task_id - 1]["task"] = new_description
-        client["discord"]["tasks"].update_one(  # Update the task in the database
-            {"project_id": project_id, "task_id": task_id},
-            {"$set": {"description": new_description}},
-        )
+        
+        if status == "complete":
+            statuses[project_id][task_id - 1]["status"] = "complete \u2705"
+        # I think else in unnecessary here but I will keep it for now
+        else:
+            statuses[project_id][task_id - 1]["status"] = "incomplete \u274C"
+        edit(project_id, task_id,task_descriptions, collection) # Edit the task in the database
         await ctx.send("Task edited!")
     else:
         await ctx.send("Task not found")
