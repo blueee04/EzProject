@@ -5,5 +5,6 @@ A bot that facilitates group projects by assigning tasks, tracking progress, and
 ## To-do :
 - [ ] pymongo
 - [ ] Assignees
-- [ ] Tasks with space
+- [ ] Tasks with spaces
 - [ ] Add SlashCommands
+- [ ] Bot Hosting
