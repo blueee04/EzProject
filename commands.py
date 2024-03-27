@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from Datamodule.db import add,  list_task, edit
+from Datamodule.db import add,  list_task, edit, delete_task
+import asyncio
 
 # MongoDB connection
 from pymongo import MongoClient
@@ -18,8 +19,8 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-PZ4_M"
 
 # Task descriptions and statuses
-task_descriptions = {}
-statuses = {}
+# task_descriptions  = {}
+# statuses ={}
 
 
 @bot.event
@@ -36,52 +37,87 @@ async def hello(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"Please enter the correct format. Format: /listtask **<project_id>**")
+        await ctx.send(f'''{ctx.author.mention} Please enter the correct format
+                         \n Format:
+                         \n- /addtask **<project_id>** **<task_description>** **<status>**
+                         \n- /listtask **<project_id>**
+                         \n- /edittask **<project_id>** **<task_id>** **<status>**''')
+
+@bot.command(name = "helpme")
+async def help(ctx):
+    await ctx.send(f'''{ctx.author.mention}Commands:
+                         \n Format:
+                         \n- /addtask **<project_id>** **<task_description>** **<status>**
+                         \n- /listtask **<project_id>**
+                         \n- /edittask **<project_id>** **<task_id>** **<status>**''')
 
 @bot.command(name="addtask")
 async def add_task(ctx, project_id: int, task_description: str,status="incomplete"):
-    task_descriptions.setdefault(project_id, []).append(task_description)
-    statuses.setdefault(project_id, []).append(
-        {"task": task_description, "status": "incomplete \u274C"}
-    )
     temp_status = "ic"
     if(status=="complete"):
-        statuses[project_id][-1]["status"] = "complete \u2705"
         temp_status = "c"
-    add(project_id, task_description, task_descriptions,temp_status) # Add the task to the database
-    await ctx.send(f"Task added!")
+    # Add the task to the database
+    add(project_id, task_description,temp_status)
+    await ctx.send(f"{ctx.author.mention} Task added!")
 
 
 @bot.command(name="listtask")
 async def list_tasks(ctx, project_id: int):
     try:
-        project_id = int(project_id)
         #if project id not found in the database
         if project_id not in collection.distinct("project_id"):
             await ctx.send("No tasks found")
             return
         
         task_list = list_task(project_id)
-        await ctx.send(f"Tasks for project {project_id}:\n" + "\n".join(task_list))
+        await ctx.send(f"{ctx.author.mention} \n Tasks for project {project_id}:\n" + "\n".join(task_list))
     except :
-        await ctx.send("Please enter a valid project ID,format: /listtask **<project_id>**")
+        await ctx.send(f"{ctx.author.mention} Please enter a valid project ID,format: /listtask **<project_id>**")
+
+@bot.command(name="listall")
+async def list_all(ctx):
+    try:
+        #if project id not found in the database
+        if len(collection.distinct("project_id"))==0:
+            await ctx.send("No tasks found")
+            return
+        task_list = []
+        for project_id in collection.distinct("project_id"):
+            task_list.append(list_task(project_id))
+        await ctx.send(f"{ctx.author.mention} \n Tasks for all projects:\n" + "\n".join(task_list))
+    except :
+        await ctx.send(f"{ctx.author.mention} Please enter a valid project ID,format: /listtask **<project_id>**")
+
 
 
 @bot.command(name="edittask")
-async def edit_task(ctx, project_id: int, task_id: int, status: str):
-    if project_id in task_descriptions and 0 < task_id <= len(
-        task_descriptions[project_id]
-    ):
-        
+async def edit_task(ctx, project_id: int, task_id: int,task_description,status: str):
+    try:
         if status == "complete":
-            statuses[project_id][task_id - 1]["status"] = "complete \u2705"
-        # I think else in unnecessary here but I will keep it for now
-        else:
-            statuses[project_id][task_id - 1]["status"] = "incomplete \u274C"
-        edit(project_id, task_id,task_descriptions, collection) # Edit the task in the database
+            edit_status = "complete \u2705"
+        
+        edit_status = "incomplete \u274C"
+
+        edit(project_id, task_id,task_description, edit_status) # Edit the task in the database
         await ctx.send("Task edited!")
-    else:
+    except:
         await ctx.send("Task not found")
 
+@bot.command(name="deletetask")
+async def delete_task(ctx, project_id: int, task_id: int):
+    try:
+        await delete_task(project_id, task_id) # Delete the task from the database
+        await ctx.send("Task deleted!")
+    except:
+        await ctx.send("Task not found")
+
+@bot.command(name="deleteproject")
+async def delete_project(ctx, project_id: int):
+    try:
+        # Delete the project from the database
+        await delete_project(project_id)
+        await ctx.send("Project deleted!")
+    except:
+        await ctx.send("Project not found")
 
 bot.run(bot_token)
