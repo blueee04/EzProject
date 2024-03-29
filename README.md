@@ -3,11 +3,11 @@ A bot that facilitates group projects by assigning tasks, tracking progress, and
 
 
 ## To-do :
-- [*] pymongo
-- [*] Assignees
-- [*] Tasks with spaces
+- [x] pymongo
+- [x] Assignees
+- [x] Tasks with spaces
 - [ ] Add SlashCommands
 - [ ] Bot Hosting
 
 ## Working on 
-- [*] pymongo
+- [x] pymongo
