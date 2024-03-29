@@ -24,7 +24,6 @@ bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-
 
 
 
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -117,6 +116,7 @@ async def delete_task(ctx, project_id: int, task_id: int):
     else:
         await ctx.send("Task not found")
 
+
 @bot.command(name="deleteproject")
 async def delete_project(ctx, project_id: int):
     try:
@@ -126,4 +126,31 @@ async def delete_project(ctx, project_id: int):
     except:
         await ctx.send("Project not found")
 
+@bot.command(name="assign")
+async def assign(ctx, project_id: int, task_id: int, member: discord.Member):
+    if project_id in task_descriptions and 0 < task_id <= len(
+        task_descriptions[project_id]
+    ):
+        if member.id not in assign:
+            assign[project_id][task_id] = member.id
+            await ctx.send(f"{member.mention} has been assigned to task {task_id} of project {project_id}")
+        else:
+            ctx.send("Task already assigned")
+    else:
+        await ctx.send("Task not found")
+
+@bot.command(name="listassign")
+async def list_assign(ctx, project_id: int, task_id: int):
+    try:
+        project_id = int(project_id)
+        if project_id not in collection.distinct("project_id"):
+            await ctx.send("No tasks found")
+            return
+        
+        assign_list = list_task(project_id)
+        await ctx.send(f"Assignees for project tasks {project_id}:\n" + "\n".join(task_list))
+    except :
+        await ctx.send("Please enter a valid project ID,format: /assigntask **<project_id>**")
+            
+    
 bot.run(bot_token)
