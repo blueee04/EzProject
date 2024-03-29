@@ -63,11 +63,8 @@ def task_id(project_id):
     task_ids.sort()
     return task_ids[-1]+1
 
-async def delete_task(project_id, task_id):
-    tracemalloc.start()
-    await collection.delete_one({"project_id": project_id, "task_id": task_id})
-    snapshot = tracemalloc.take_snapshot()
-    tracemalloc.stop()
+async def delete_task(project_id, task_id)->None:
+    collection.delete_many({"project_id": project_id, "task_id": task_id})
 
 def delete_project(project_id):
     collection.delete_many({"project_id": project_id})
