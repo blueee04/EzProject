@@ -23,6 +23,8 @@ bot_token = "MTIwOTg3NTcxMjk5NjI4NjU4NQ.GRNVJY.MqgkgbOXsFKfqAsHYA0G6zNXgcDInnrB-
 # statuses ={}
 
 
+
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -32,7 +34,8 @@ async def on_ready():
 
 @bot.command(name="hello")
 async def hello(ctx):
-    await ctx.send("Hello!")
+    await ctx.send(f"{ctx.author.mention} Hello!")
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -52,12 +55,12 @@ async def help(ctx):
                          \n- /edittask **<project_id>** **<task_id>** **<status>**''')
 
 @bot.command(name="addtask")
-async def add_task(ctx, project_id: int, task_description: str,status="incomplete"):
+async def add_task(ctx, project_id: int, *task_description: str, status="incomplete"):
+    task_description = " ".join(task_description)
     temp_status = "ic"
-    if(status=="complete"):
+    if status == "complete":
         temp_status = "c"
-    # Add the task to the database
-    add(project_id, task_description,temp_status)
+    add(project_id, task_description, temp_status)
     await ctx.send(f"{ctx.author.mention} Task added!")
 
 
@@ -70,6 +73,7 @@ async def list_tasks(ctx, project_id: int):
             return
         
         task_list = list_task(project_id)
+        
         await ctx.send(f"{ctx.author.mention} \n Tasks for project {project_id}:\n" + "\n".join(task_list))
     except :
         await ctx.send(f"{ctx.author.mention} Please enter a valid project ID,format: /listtask **<project_id>**")
@@ -107,17 +111,17 @@ async def edit_task(ctx, project_id: int, task_id: int,task_description,status: 
 #To be Solved Not working right now.
 @bot.command(name="deletetask")
 async def delete_task(ctx, project_id: int, task_id: int):
-    try:
+    if(project_id in collection.distinct("project_id")):
         await delete_task(project_id, task_id) # Delete the task from the database
         await ctx.send("Task deleted!")
-    except:
+    else:
         await ctx.send("Task not found")
 
 @bot.command(name="deleteproject")
 async def delete_project(ctx, project_id: int):
     try:
         # Delete the project from the database
-        await delete_project(project_id)
+        delete_project(project_id)
         await ctx.send("Project deleted!")
     except:
         await ctx.send("Project not found")
