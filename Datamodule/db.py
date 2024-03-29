@@ -68,4 +68,4 @@ async def delete_task(project_id, task_id)->None:
 
 def delete_project(project_id):
     collection.delete_many({"project_id": project_id})
-# print(task_id(2))
+
