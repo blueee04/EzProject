@@ -9,7 +9,7 @@ BOT_TOKEN = os.getenv('BOT_TOKEN', 'MTIwOTg3NTcxMjk5NjI4NjU4NQ.G3X39U.VFc93MUF1v
 COMMAND_PREFIX = os.getenv('COMMAND_PREFIX', '!')
 
 # MongoDB Configuration
-MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb+srv://barshan2004:Bmtargetis100@ezproject.ohetccl.mongodb.net/?retryWrites=true&w=majority&appName=EzProject')
+MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb+srv://barshan2004:p02vqOUbeDDktPbW@ezproject.ohetccl.mongodb.net/?retryWrites=true&w=majority&appName=EzProject')
 DATABASE_NAME = os.getenv('DATABASE_NAME', 'discord')
 COLLECTION_NAME = os.getenv('COLLECTION_NAME', 'tasks')
 
