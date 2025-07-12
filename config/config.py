@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Bot Configuration
-BOT_TOKEN = os.getenv('BOT_TOKEN', 'MTIwOTg3NTcxMjk5NjI4NjU4NQ.G3X39U.VFc93MUF1vM0pCjl7OIq3F5H1MdkszQvIW43lE')
+BOT_TOKEN = os.getenv('BOT_TOKEN')
 COMMAND_PREFIX = os.getenv('COMMAND_PREFIX', '!')
 
 # MongoDB Configuration

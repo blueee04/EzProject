@@ -1,4 +1,4 @@
 /commands/.vscode/
 customcommands/__pycache__
-env/
+.env
 Datamodule/__pycache__
