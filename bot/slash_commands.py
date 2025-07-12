@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from Datamodule.db import add, list_task, edit, delete_task, delete_project
+from db.db import add, list_task, edit, delete_task, delete_project
 import asyncio
 
 # MongoDB connection

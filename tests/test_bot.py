@@ -7,7 +7,7 @@ This script tests basic functionality without running the full bot
 import sys
 import os
 from pymongo import MongoClient
-from config import MONGODB_URI, DATABASE_NAME, COLLECTION_NAME
+from config.config import MONGODB_URI, DATABASE_NAME, COLLECTION_NAME, BOT_TOKEN, EMBED_COLORS
 
 def test_mongodb_connection():
     """Test MongoDB connection"""
@@ -42,8 +42,8 @@ def test_imports():
     try:
         import discord
         from discord.ext import commands
-        from Datamodule.db import add, list_task, edit, delete_task, delete_project
-        from config import BOT_TOKEN, EMBED_COLORS
+        from db.db import add, list_task, edit, delete_task, delete_project
+        from config.config import BOT_TOKEN, EMBED_COLORS
         print("✅ All imports successful!")
         return True
     except ImportError as e:
@@ -53,7 +53,7 @@ def test_imports():
 def test_config():
     """Test configuration values"""
     try:
-        from config import BOT_TOKEN, MONGODB_URI
+        from config.config import BOT_TOKEN, MONGODB_URI
         if BOT_TOKEN and BOT_TOKEN != "your_bot_token_here":
             print("✅ Bot token configured!")
         else:

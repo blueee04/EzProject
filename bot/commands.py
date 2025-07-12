@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-from Datamodule.db import add, list_task, edit, delete_task, delete_project, assign_task_to_user, get_task_assignment, get_project_assignments, remove_task_assignment, set_task_deadline, get_overdue_tasks, get_tasks_due_soon, get_task_deadline, remove_task_deadline
+from db.db import add, list_task, edit, delete_task, delete_project, assign_task_to_user, get_task_assignment, get_project_assignments, remove_task_assignment, set_task_deadline, get_overdue_tasks, get_tasks_due_soon, get_task_deadline, remove_task_deadline
 import asyncio
-from config import BOT_TOKEN, MONGODB_URI, DATABASE_NAME, COLLECTION_NAME, EMBED_COLORS
+from config.config import BOT_TOKEN, MONGODB_URI, DATABASE_NAME, COLLECTION_NAME, EMBED_COLORS
 
 # MongoDB connection
 from pymongo import MongoClient

@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from typing import Optional
 import tracemalloc
 from datetime import datetime, timedelta
-from config import MONGODB_URI, DATABASE_NAME, COLLECTION_NAME
+from config.config import MONGODB_URI, DATABASE_NAME, COLLECTION_NAME
 
 client = MongoClient(MONGODB_URI)
 if client:
@@ -194,5 +194,4 @@ def remove_task_deadline(project_id: int, task_id: int) -> bool:
         return True
     except Exception as e:
         print(f"Error removing task deadline: {e}")
-        return False
-
+        return False 

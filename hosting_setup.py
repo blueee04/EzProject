@@ -1,8 +1,8 @@
 import os
 import discord
 from discord.ext import commands
-from Datamodule.db import add, list_task, edit, delete_task, delete_project
-from config import BOT_TOKEN, MONGODB_URI, DATABASE_NAME, COLLECTION_NAME, EMBED_COLORS
+from db.db import add, list_task, edit, delete_task, delete_project
+from config.config import BOT_TOKEN, MONGODB_URI, DATABASE_NAME, COLLECTION_NAME, EMBED_COLORS
 
 # MongoDB connection
 from pymongo import MongoClient

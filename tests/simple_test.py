@@ -21,7 +21,7 @@ def test_imports():
 def test_config():
     """Test configuration values"""
     try:
-        from config import BOT_TOKEN, MONGODB_URI, EMBED_COLORS
+        from config.config import BOT_TOKEN, MONGODB_URI, EMBED_COLORS
         print("✅ Configuration loaded successfully!")
         
         if BOT_TOKEN and BOT_TOKEN != "your_bot_token_here":
