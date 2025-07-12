@@ -1,8 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from db.db import add, list_task, edit, delete_task, delete_project
-import asyncio
+from config.config import EMBED_COLORS
+from db.db import add, list_task
 
 # MongoDB connection
 from pymongo import MongoClient
@@ -34,9 +34,62 @@ async def on_ready():
     except Exception as e:
         print(f"Failed to sync commands: {e}")
 
-@bot.tree.command(name="hello", description="Say hello to the bot")
-async def hello(interaction: discord.Interaction):
-    await interaction.response.send_message(f"{interaction.user.mention} Hello!")
+class SlashCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @app_commands.command(name="hello", description="Say hello to the bot!")
+    async def hello(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="👋 Hello!",
+            description=f"Welcome {interaction.user.mention}! I'm your project management assistant (slash command).",
+            color=EMBED_COLORS['info']
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="addtask", description="Add a new task to a project.")
+    @app_commands.describe(project_id="Project ID", task_description="Description of the task", status="Task status (complete/incomplete)")
+    async def addtask(self, interaction: discord.Interaction, project_id: int, task_description: str, status: str = "incomplete"):
+        temp_status = "ic"
+        if status == "complete":
+            temp_status = "c"
+        add(project_id, task_description, temp_status)
+        embed = discord.Embed(
+            title="✅ Task Added!",
+            description=f"Task added to project {project_id} (slash command)",
+            color=EMBED_COLORS['success']
+        )
+        embed.add_field(name="Description", value=task_description, inline=False)
+        embed.add_field(name="Status", value=status, inline=True)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="helpme", description="Show help for all slash commands.")
+    async def helpme(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="EzProject Slash Commands",
+            description="Here are the available slash commands:",
+            color=EMBED_COLORS['info']
+        )
+        embed.add_field(
+            name="/hello",
+            value="Say hello to the bot.",
+            inline=False
+        )
+        embed.add_field(
+            name="/addtask <project_id> <task_description> [status]",
+            value="Add a new task to a project. Status can be 'complete' or 'incomplete'.",
+            inline=False
+        )
+        embed.add_field(
+            name="/helpme",
+            value="Show this help message.",
+            inline=False
+        )
+        await interaction.response.send_message(embed=embed)
+
+async def setup(bot):
+    await bot.add_cog(SlashCommands(bot))
+    bot.tree.copy_global_to(guild=discord.Object(id=YOUR_GUILD_ID))  # Optional: for instant testing
 
 @bot.tree.command(name="help", description="Show all available commands")
 async def help_command(interaction: discord.Interaction):
@@ -59,27 +112,6 @@ async def help_command(interaction: discord.Interaction):
 • `/help` - Show this help message"""
     
     await interaction.response.send_message(help_text)
-
-@bot.tree.command(name="addtask", description="Add a new task to a project")
-@app_commands.describe(
-    project_id="The ID of the project",
-    task_description="Description of the task",
-    status="Status of the task (complete or incomplete)"
-)
-@app_commands.choices(status=[
-    app_commands.Choice(name="incomplete", value="incomplete"),
-    app_commands.Choice(name="complete", value="complete")
-])
-async def add_task(interaction: discord.Interaction, project_id: int, task_description: str, status: str = "incomplete"):
-    try:
-        temp_status = "ic"
-        if status == "complete":
-            temp_status = "c"
-        
-        add(project_id, task_description, temp_status)
-        await interaction.response.send_message(f"{interaction.user.mention} Task added to project {project_id}!")
-    except Exception as e:
-        await interaction.response.send_message(f"Error adding task: {str(e)}", ephemeral=True)
 
 @bot.tree.command(name="listtask", description="List all tasks in a project")
 @app_commands.describe(project_id="The ID of the project")
