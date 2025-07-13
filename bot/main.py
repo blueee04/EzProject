@@ -7,7 +7,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.config import BOT_TOKEN, COMMAND_PREFIX, EMBED_COLORS
-from bot.commands import ProjectCommands
 
 # Bot instance with proper intents
 intents = discord.Intents.default()
@@ -46,8 +45,21 @@ async def on_command_error(ctx, error):
         )
         await ctx.send(embed=embed)
 
-# Add the cog and run the bot
+# Load all cogs
+
+def load_cogs():
+    """Load all command cogs"""
+    try:
+        bot.load_extension("bot.cogs.task_management")
+        bot.load_extension("bot.cogs.assignment_management")
+        bot.load_extension("bot.cogs.deadline_management")
+        bot.load_extension("bot.cogs.role_management")
+        bot.load_extension("bot.cogs.utility_commands")
+        print("✅ All cogs loaded successfully")
+    except Exception as e:
+        print(f"❌ Error loading cogs: {e}")
+
+# Run the bot
 if __name__ == "__main__":
-    bot.add_cog(ProjectCommands(bot))
-    print("✅ Commands loaded successfully")
+    load_cogs()
     bot.run(BOT_TOKEN)
